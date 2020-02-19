@@ -4,6 +4,9 @@ const { performance } = require('perf_hooks');
 class FrameProcessor {
   constructor(width, height, minDistance, maxDistance) {
     this.decimationFilter = new rs2.DecimationFilter();
+    this.spatialFilter = new rs2.SpatialFilter();
+    this.temporalFilter = new rs2.TemporalFilter();
+    this.holeFillingFilter = new rs2.HoleFillingFilter();
     this.gridWidth = width;
     this.gridHeight = height;
     this.minDistance = minDistance;
@@ -15,6 +18,18 @@ class FrameProcessor {
     frame = this.decimationFilter.process(frame);
     frame = this.decimationFilter.process(frame);
     return frame;
+  }
+
+  spatialize(frame) {
+    return this.spatialFilter.process(frame);
+  }
+
+  temporalize(frame) {
+    return this.temporalFilter.process(frame);
+  }
+
+  fillHoles(frame) {
+    return this.holeFillingFilter.process(frame);
   }
 
   downsample(frame) {
@@ -83,7 +98,7 @@ class FrameProcessor {
     const output = new Array();
 
     data.forEach(item => {
-      if (item > this.maxDistance || item < this.minDistance) {
+      if (item > this.minDistance && item < this.maxDistance) {
         output.push(0);
       } else output.push(1);
     });

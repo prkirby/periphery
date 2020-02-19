@@ -44,7 +44,8 @@ class Serial {
   // Expects formatted list of IO Arrays, from Mapper
   output(ioArrays) {
     for (const arrayName in ioArrays) {
-      const data = ioArrays[arrayName];
+      let data = ioArrays[arrayName];
+      data = data.reverse();
       let cmd = arrayName + "es" + this.convertToHex(data.join("")) + ">";
       this.write(cmd);
     }

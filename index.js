@@ -8,11 +8,11 @@ const Serial = require("./Serial");
 const { printFrame, timer } = require("./Utilities");
 
 const pipeline = new rs2.Pipeline();
-const delay = 150;
+const delay = 90;
 const gridWidth = 8;
 const gridHeight = 16;
-const minDistance = 800;
-const maxDistance = 2000;
+const minDistance = 1000;
+const maxDistance = 3000;
 const Processor = new FrameProcessor(
   gridWidth,
   gridHeight,
@@ -47,16 +47,20 @@ const loop = async () => {
     if (frameset) {
       let depthFrame = frameset.depthFrame;
       // const t0 = performance.now();
+      // depthFrame = Processor.fillHoles(depthFrame);
+      // depthFrame = Processor.spatialize(depthFrame);
+      // depthFrame = Processor.temporalize(depthFrame);
+      // depthFrame = Processor.temporalize(depthFrame);
       depthFrame = Processor.decimate(depthFrame);
       depthFrame = Processor.downsample(depthFrame);
-      depthFrame = Processor.convertToBinary(depthFrame);
       depthFrame = Processor.mirror(depthFrame);
+      depthFrame = Processor.convertToBinary(depthFrame);
+      printFrame(depthFrame);
 
       const ioArrays = Mapper.getIOArrays(depthFrame.data);
 
       Serial.output(ioArrays);
 
-      // printFrame(depthFrame, minDistance, maxDistance);
       // const t1 = performance.now();
       // console.log(`Processing took: ${t1 - t0} millis`);
 
