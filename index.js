@@ -1,10 +1,14 @@
 "use strict";
 const { performance } = require("perf_hooks");
 const rs2 = require("/Users/paul/WebDev/librealsense/wrappers/nodejs/index.js");
+const FrameProcessor = require("./FrameProcessor.js");
+const { printFrame, timer } = require("./Utilities.js");
 
 const pipeline = new rs2.Pipeline();
-const delay = 200;
-const minDistance = 1800;
+const delay = 100;
+const minDistance = 800;
+const maxDistance = 2000;
+const Processor = new FrameProcessor(48, 28);
 
 const config = new rs2.Config();
 config.disableAllStreams();
@@ -20,49 +24,28 @@ config.enableStream(
 // Start the camera
 pipeline.start(config);
 
-const processFrame = frameProcessor();
-
-function timer(ms) {
-  return new Promise(res => setTimeout(res, ms));
-}
-
-async function loop() {
+const loop = async () => {
   while (true) {
     const frameset = pipeline.pollForFrames();
     if (frameset) {
-      const depthFrame = frameset.getFrame(rs2.stream.STREAM_DEPTH, 0);
-      const processedFrame = processFrame(depthFrame);
-      printFrame(processedFrame);
+      let depthFrame = frameset.depthFrame;
+      // const t0 = performance.now();
+      depthFrame = Processor.decimate(depthFrame);
+      depthFrame = Processor.downsample(depthFrame);
+      depthFrame = Processor.mirror(depthFrame);
+      // const t1 = performance.now();
+      // console.log(`Processing took: ${t1 - t0} millis`);
+
+      printFrame(depthFrame, minDistance, maxDistance);
+      // console.log(downsampledFrame.data.length);
+      // break;
     }
     await timer(delay);
   }
-}
+  return;
+};
 
 loop();
-
-function frameProcessor() {
-  const decimationFilter = new rs2.DecimationFilter();
-  return frame => {
-    frame = decimationFilter.process(frame);
-    frame = decimationFilter.process(frame);
-    frame = decimationFilter.process(frame);
-    return frame;
-  };
-}
-
-function printFrame(frame) {
-  const width = frame.width;
-  const data = frame.getData();
-  let output = "";
-  data.map((item, index) => {
-    if ((width - index) % width === 0) output += "\n";
-
-    if (item > minDistance) {
-      output += 1;
-    } else output += 0;
-  });
-  console.log(output);
-}
 
 process.on("SIGINT", function() {
   console.log("Caught interrupt signal");
