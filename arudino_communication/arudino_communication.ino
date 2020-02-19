@@ -19,9 +19,21 @@ void setup() {
   Serial9Bit.println("READY"); // Our node app will await this before sending data
 }
 
+char ch;
+char board;
+String hex;
+char cmd[40];
+
 void loop() {
-  // put your main code here, to run repeatedly:
-  if (Serial9Bit.available() > 0) {
-    Serial9Bit.println(Serial9Bit.readString());
+  if (Serial9Bit.available() > 1) {
+    ch = Serial9Bit.read();
+    if (ch == 'i') {
+      board = Serial9Bit.parseInt();
+      hex = Serial9Bit.readStringUntil('>');
+      hex.toCharArray(cmd, 40);
+//      Serial9Bit.println(cmd);
+      SerialCmdDone(board, cmd);
+    }
   }
+//  wdt_reset();
 }

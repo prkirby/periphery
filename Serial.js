@@ -40,6 +40,28 @@ class Serial {
   write(string) {
     this.port.write(string);
   }
+
+  // Expects formatted list of IO Arrays, from Mapper
+  output(ioArrays) {
+    for (const arrayName in ioArrays) {
+      const data = ioArrays[arrayName];
+      let cmd = arrayName + "es" + this.convertToHex(data.join("")) + ">";
+      this.write(cmd);
+    }
+  }
+
+  convertToHex(binary) {
+    let output = "";
+    let buffer = "";
+    [...binary].forEach((item, index) => {
+      buffer += item;
+      if ((index + 1) % 4 === 0) {
+        output += parseInt(buffer, 2).toString(16);
+        buffer = "";
+      }
+    });
+    return output;
+  }
 }
 
 module.exports = new Serial();

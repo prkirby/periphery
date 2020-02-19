@@ -3,7 +3,7 @@ const { IO1, pixelMap } = require('./pixelMap');
 class Mapper {
   constructor() {
     this.IOArrays = {};
-    this.IOArrays[IO1] = new Array(128);
+    this.IOArrays[IO1] = new Array(128).fill(0);
   }
 
   getIOArrays(frameData) {
