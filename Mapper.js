@@ -18,9 +18,13 @@ class Mapper {
 
     frameData.forEach((item, index) => {
       const pixel = pixelMap[index];
-      this.IOArrays[pixel.io][pixel.index] = item;
+
+      if (pixel === null) return;
+
+      // Pixel.index is 1 indexed
+      this.IOArrays[pixel.io][pixel.index - 1] = item;
     });
   }
 }
 
-module.exports = Mapper;
+module.exports = new Mapper();

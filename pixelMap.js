@@ -1,3 +1,4 @@
+const IO1 = 'io1';
 const pixelMap = [
   { io: IO1, index: 122 },
   { io: IO1, index: 123 },
@@ -103,7 +104,6 @@ const pixelMap = [
   { io: IO1, index: 31 },
   { io: IO1, index: 32 },
   { io: IO1, index: 33 },
-  { io: IO1, index: 26 },
   { io: IO1, index: 25 },
   { io: IO1, index: 24 },
   { io: IO1, index: 23 },
@@ -114,6 +114,7 @@ const pixelMap = [
   { io: IO1, index: 18 },
   { io: IO1, index: 10 },
   { io: IO1, index: 11 },
+  { io: IO1, index: 12 },
   { io: IO1, index: 13 },
   { io: IO1, index: 14 },
   { io: IO1, index: 15 },
@@ -128,8 +129,6 @@ const pixelMap = [
   { io: IO1, index: 3 },
   { io: IO1, index: 2 }
 ];
-
-const IO1 = 'io1';
 
 module.exports = {
   pixelMap,

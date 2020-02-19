@@ -1,15 +1,24 @@
 "use strict";
 const { performance } = require("perf_hooks");
 const rs2 = require("/Users/paul/WebDev/librealsense/wrappers/nodejs/index.js");
-const FrameProcessor = require("./FrameProcessor.js");
-const { printFrame, timer } = require("./Utilities.js");
+const FrameProcessor = require("./FrameProcessor");
+const Mapper = require("./mapper");
+const { printFrame, timer } = require("./Utilities");
 
 const pipeline = new rs2.Pipeline();
-const delay = 100;
+const delay = 250;
+const gridWidth = 8;
+const gridHeight = 16;
 const minDistance = 800;
 const maxDistance = 2000;
-const Processor = new FrameProcessor(48, 28);
+const Processor = new FrameProcessor(
+  gridWidth,
+  gridHeight,
+  minDistance,
+  maxDistance
+);
 
+// Setup stream and pipeline
 const config = new rs2.Config();
 config.disableAllStreams();
 config.enableStream(
@@ -24,20 +33,24 @@ config.enableStream(
 // Start the camera
 pipeline.start(config);
 
+// Main Loop
 const loop = async () => {
   while (true) {
     const frameset = pipeline.pollForFrames();
     if (frameset) {
       let depthFrame = frameset.depthFrame;
-      // const t0 = performance.now();
+      const t0 = performance.now();
       depthFrame = Processor.decimate(depthFrame);
       depthFrame = Processor.downsample(depthFrame);
+      depthFrame = Processor.convertToBinary(depthFrame);
       depthFrame = Processor.mirror(depthFrame);
-      // const t1 = performance.now();
-      // console.log(`Processing took: ${t1 - t0} millis`);
 
-      printFrame(depthFrame, minDistance, maxDistance);
-      // console.log(downsampledFrame.data.length);
+      const ioArrays = Mapper.getIOArrays(depthFrame.data);
+
+      const t1 = performance.now();
+      console.log(`Processing took: ${t1 - t0} millis`);
+
+      // printFrame(depthFrame, minDistance, maxDistance);
       // break;
     }
     await timer(delay);

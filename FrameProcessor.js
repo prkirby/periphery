@@ -2,10 +2,12 @@ const rs2 = require('/Users/paul/WebDev/librealsense/wrappers/nodejs/index.js');
 const { performance } = require('perf_hooks');
 
 class FrameProcessor {
-  constructor(width, height) {
+  constructor(width, height, minDistance, maxDistance) {
     this.decimationFilter = new rs2.DecimationFilter();
     this.gridWidth = width;
-    this.gridHeight - height;
+    this.gridHeight = height;
+    this.minDistance = minDistance;
+    this.maxDistance = maxDistance;
   }
 
   decimate(frame) {
@@ -69,6 +71,21 @@ class FrameProcessor {
         output = output.concat(temp);
         temp = new Array();
       }
+    });
+
+    frame.data = output;
+
+    return frame;
+  }
+
+  convertToBinary(frame) {
+    const data = frame.data;
+    const output = new Array();
+
+    data.forEach(item => {
+      if (item > this.maxDistance || item < this.minDistance) {
+        output.push(0);
+      } else output.push(1);
     });
 
     frame.data = output;
