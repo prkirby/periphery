@@ -1,4 +1,4 @@
-const map = [
+const pixelMap = [
   { io: IO1, index: 122 },
   { io: IO1, index: 123 },
   { io: IO1, index: 124 },
@@ -132,6 +132,6 @@ const map = [
 const IO1 = 'io1';
 
 module.exports = {
-  map,
+  pixelMap,
   IO1
 };
