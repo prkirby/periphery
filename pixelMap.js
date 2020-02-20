@@ -1,4 +1,4 @@
-const IO1 = 'i1';
+const IO1 = '1';
 const pixelMap = [
   { io: IO1, index: 122 },
   { io: IO1, index: 123 },

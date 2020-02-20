@@ -42,12 +42,17 @@ class Serial {
   }
 
   // Expects formatted list of IO Arrays, from Mapper
-  output(ioArrays) {
+  async output(ioArrays) {
     for (const arrayName in ioArrays) {
       let data = ioArrays[arrayName];
       data = data.reverse();
-      let cmd = arrayName + "es" + this.convertToHex(data.join("")) + ">";
-      this.write(cmd);
+      const hex = this.convertToHex(data.join(""));
+      let cmd = `[${arrayName}es${hex}]`;
+      await this.writeAndDrain(cmd);
+      cmd = `[2es${hex}]`;
+      await this.writeAndDrain(cmd);
+      cmd = `[3es${hex}]`;
+      await this.writeAndDrain(cmd);
     }
   }
 
@@ -62,6 +67,15 @@ class Serial {
       }
     });
     return output;
+  }
+
+  writeAndDrain(data) {
+    return new Promise(resolve => {
+      this.port.write(data);
+      this.port.drain(() => {
+        resolve();
+      });
+    });
   }
 }
 

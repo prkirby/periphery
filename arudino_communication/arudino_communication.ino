@@ -2,7 +2,7 @@
 #include "IOExpander9Bit.h"
 #include <avr/wdt.h>
 
-#define MAX_BOARDS 1
+#define MAX_BOARDS 3
 #define MAX_RELAYS 128
 
 void setup() {
@@ -19,21 +19,56 @@ void setup() {
   Serial9Bit.println("READY"); // Our node app will await this before sending data
 }
 
-char ch;
-char board;
-String hex;
-char cmd[40];
+const byte numChars = 35;
+char receivedChars[numChars];
+boolean newData = false;
 
 void loop() {
-  if (Serial9Bit.available() > 1) {
-    ch = Serial9Bit.read();
-    if (ch == 'i') {
-      board = Serial9Bit.parseInt();
-      hex = Serial9Bit.readStringUntil('>');
-      hex.toCharArray(cmd, 40);
-//      Serial9Bit.println(cmd);
-      SerialCmdDone(board, cmd);
+  receiveCommand();
+  sendCommand();
+}
+
+void receiveCommand() {
+  static boolean recvInProgress = false;
+  static byte index = 0;
+  char startMarker = '[';
+  char endMarker = ']';
+  char rc;
+  
+  while (Serial9Bit.available() > 0 && newData == false) {
+    rc = Serial9Bit.read();
+        
+    if (recvInProgress == true) {
+      if (rc != endMarker) {
+        receivedChars[index] = rc;
+        index++;
+        if (index >= numChars) {
+          index = numChars - 1;
+        }
+      }
+      else {
+        recvInProgress = false;
+        index = 0;
+        newData = true;
+      }
+    }
+    
+    else if (rc == startMarker) {
+      recvInProgress = true;
     }
   }
-//  wdt_reset();
+}
+
+void sendCommand() {
+  unsigned char board;
+  char cmd[34];
+  if (newData == true) {
+    board = receivedChars[0] - 48; // Convert from ascii to true index
+    sprintf(cmd, "%.34s", &receivedChars[1]);
+    Serial9Bit.println(board);
+    Serial9Bit.println(cmd);
+    Serial9Bit1.address(board);
+    Serial9Bit1.println(cmd);
+    newData = false;
+  }
 }
