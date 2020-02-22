@@ -1,10 +1,18 @@
 const SerialPort = require("serialport");
 const Readline = require("@serialport/parser-readline");
 const Ready = require("@serialport/parser-ready");
+const Delimiter = require("@serialport/parser-delimiter");
+var NanoTimer = require("nanotimer");
+const { timer } = require("./Utilities");
+const { performance } = require("perf_hooks");
 
 class Serial {
   constructor() {
     this.port = null;
+    this.reader = null;
+    this.readyChar = "%";
+    this.readyForWrite = false;
+    this.timer = new NanoTimer();
   }
 
   init() {
@@ -15,13 +23,20 @@ class Serial {
       });
 
       let ready = false;
-      const parser = this.port.pipe(new Ready({ delimiter: "READY" }));
-      parser.on("ready", () => {
+      const readyParser = this.port.pipe(new Ready({ delimiter: "READY" }));
+      readyParser.on("ready", () => {
         ready = true;
       });
 
-      const reader = this.port.pipe(new Readline({ delimiter: "\r\n" }));
-      reader.on("data", console.log);
+      this.reader = this.port.pipe(new Readline({ delimiter: "\r\n" }));
+      this.reader.on("data", data => {
+        if (data != this.readyChar) {
+          console.log(data);
+        } else {
+          // console.log(data);
+          this.readyForWrite = true;
+        }
+      });
 
       const check = setInterval(() => {
         if (ready) {
@@ -42,18 +57,26 @@ class Serial {
   }
 
   // Expects formatted list of IO Arrays, from Mapper
-  async output(ioArrays) {
-    for (const arrayName in ioArrays) {
-      let data = ioArrays[arrayName];
-      data = data.reverse();
-      const hex = this.convertToHex(data.join(""));
-      let cmd = `[${arrayName}es${hex}]`;
-      await this.writeAndDrain(cmd);
-      cmd = `[2es${hex}]`;
-      await this.writeAndDrain(cmd);
-      cmd = `[3es${hex}]`;
-      await this.writeAndDrain(cmd);
-    }
+  output(ioArrays) {
+    return new Promise(async resolve => {
+      for (const arrayName in ioArrays) {
+        let data = ioArrays[arrayName];
+        data = data.reverse();
+        const hex = this.convertToHex(data.join(""));
+        let cmd = `[${arrayName}es${hex}]`;
+        // console.log("starting to write");
+        await this.writeAndDrain(cmd);
+        // console.log("ending write");
+        await timer(3);
+        cmd = `[2es${hex}]`;
+        await this.writeAndDrain(cmd);
+        await timer(3);
+        cmd = `[3es${hex}]`;
+        await this.writeAndDrain(cmd);
+        // await timer(50);
+      }
+      resolve();
+    });
   }
 
   convertToHex(binary) {
@@ -71,9 +94,28 @@ class Serial {
 
   writeAndDrain(data) {
     return new Promise(resolve => {
+      const t0 = performance.now();
       this.port.write(data);
       this.port.drain(() => {
         resolve();
+        // const check = this.timer.setInterval(
+        //   () => {
+        //     // Check for Timeout
+        //     const t1 = performance.now();
+        //     if (t1 - t0 > 20) {
+        //       this.readyForWrite = true;
+        //     }
+        //
+        //     if (this.readyForWrite) {
+        //       this.timer.clearInterval(check);
+        //       this.readyForWrite = false;
+        //
+        //       resolve(true);
+        //     }
+        //   },
+        //   "",
+        //   "1m"
+        // );
       });
     });
   }
