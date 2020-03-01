@@ -14,7 +14,7 @@ let running = false;
 let initialized = false;
 let index = 0;
 const frame = new Array(gridWidth * gridHeight).fill(0);
-const initializePrompt = "waiting to intitialize...";
+const initializePrompt = "l to list ports, s initialize and start";
 
 
 // make `process.stdin` begin emitting "keypress" events
