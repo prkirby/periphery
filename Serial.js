@@ -64,16 +64,8 @@ class Serial {
         data = data.reverse();
         const hex = this.convertToHex(data.join(""));
         let cmd = `[${arrayName}es${hex}]`;
-        // console.log("starting to write");
         await this.writeAndDrain(cmd);
-        // console.log("ending write");
-        await timer(3);
-        cmd = `[2es${hex}]`;
-        await this.writeAndDrain(cmd);
-        await timer(3);
-        cmd = `[3es${hex}]`;
-        await this.writeAndDrain(cmd);
-        // await timer(50);
+        await timer(4);
       }
       resolve();
     });
@@ -98,24 +90,6 @@ class Serial {
       this.port.write(data);
       this.port.drain(() => {
         resolve();
-        // const check = this.timer.setInterval(
-        //   () => {
-        //     // Check for Timeout
-        //     const t1 = performance.now();
-        //     if (t1 - t0 > 20) {
-        //       this.readyForWrite = true;
-        //     }
-        //
-        //     if (this.readyForWrite) {
-        //       this.timer.clearInterval(check);
-        //       this.readyForWrite = false;
-        //
-        //       resolve(true);
-        //     }
-        //   },
-        //   "",
-        //   "1m"
-        // );
       });
     });
   }

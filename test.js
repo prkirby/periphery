@@ -6,7 +6,7 @@ const Serial = require("./Serial");
 const { timer } = require("./Utilities");
 const { pixelMap } = require("./pixelMap");
 
-const delay = 800;
+const delay = 100;
 const gridWidth = 48;
 const gridHeight = 28;
 let forward = true;
@@ -55,7 +55,7 @@ process.stdin.setRawMode(true);
 process.stdin.resume();
 
 const indexForward = () => {
-  if (index >= frame.length) {
+  if (index >= frame.length - 1) {
     index = 0;
   } else {
     index++;
@@ -73,8 +73,8 @@ const indexBackward = () => {
 };
 
 const setPixel = () => {
-  frame.fill(0);
-  frame[index] = 1;
+  frame.fill(1);
+  frame[index] = 0;
   const pixel = pixelMap[index];
 
   const row = Math.ceil((index + 1) / 48);
@@ -93,14 +93,14 @@ const setPixel = () => {
 
 const allOn = () => {
   running = false;
-  frame.fill(1);
+  frame.fill(0);
   console.log("all on\n--------");
   Serial.output(Mapper.getIOArrays(frame));
 };
 
 const allOff = () => {
   running = false;
-  frame.fill(0);
+  frame.fill(1);
   console.log("all off\n--------");
   Serial.output(Mapper.getIOArrays(frame));
 };

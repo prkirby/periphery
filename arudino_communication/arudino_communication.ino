@@ -27,6 +27,14 @@ boolean finishedResponse = false;
 void loop() {
   receiveCommand();
   sendCommand();
+//  for (int i = 1; i <= MAX_BOARDS; i++) {
+//    Serial9Bit1.address(i);
+//    Serial9Bit1.println("es00000000000000000000000000000000");
+//    delay(1000);
+//    Serial9Bit1.address(i);
+//    Serial9Bit1.println("esffffffffffffffffffffffffffffffff");
+//    delay(1000);
+//  }
 }
 
 void receiveCommand() {
