@@ -8,11 +8,11 @@ const Serial = require("./Serial");
 const { printFrame, timer } = require("./Utilities");
 
 const pipeline = new rs2.Pipeline();
-const delay = process.env.DELAY;
-const gridWidth = process.env.GRID_WIDTH;
-const gridHeight = process.env.GRID_HEIGHT;
-const minDistance = process.env.MIN_DISTANCE;
-const maxDistance = process.env.MAX_DISTANCE;
+const delay = +process.env.DELAY;
+const gridWidth = +process.env.GRID_WIDTH;
+const gridHeight = +process.env.GRID_HEIGHT;
+const minDistance = +process.env.MIN_DISTANCE;
+const maxDistance = +process.env.MAX_DISTANCE;
 const shouldPrintFrame = process.env.PRINT_FRAME;
 const Processor = new FrameProcessor(
   gridWidth,

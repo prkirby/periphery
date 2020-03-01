@@ -6,14 +6,15 @@ const Serial = require("./Serial");
 const { timer } = require("./Utilities");
 const { pixelMap } = require("./pixelMap");
 
-const delay = process.env.TEST_DELAY;
-const gridWidth = process.env.GRID_WIDTH;
-const gridHeight = process.env.GRID_HEIGHT;
+const delay = +process.env.TEST_DELAY;
+const gridWidth = +process.env.GRID_WIDTH;
+const gridHeight = +process.env.GRID_HEIGHT;
 let forward = true;
 let running = false;
 let initialized = false;
 let index = 0;
 const frame = new Array(gridWidth * gridHeight).fill(0);
+const initializePrompt = "waiting to intitialize...";
 
 
 // make `process.stdin` begin emitting "keypress" events
@@ -49,9 +50,12 @@ process.stdin.on("keypress", async function(ch, key) {
       allOff();
       break;
     case "l":
+      process.stdout.write('\n');
       await Serial.list();
+      process.stdout.write(initializePrompt);
       break;
     case "s":
+      process.stdout.write('\n');
       await Serial.init();
       initialized = true;
       break;
@@ -71,7 +75,7 @@ const indexForward = (moveRow = false) => {
   if (moveRow) {
     let newIndex = index + gridWidth;
     if (newIndex >= frame.length - 1) {
-      newIndex = newIndex = frame.length - 1;
+      newIndex = newIndex - frame.length;
     }
     index = newIndex;
   } else {
@@ -136,9 +140,16 @@ const allOff = () => {
 
 // Main Loop
 const loop = async () => {
+  process.stdout.write(initializePrompt);
+  let prevTime = Date.now();
+
   while (true) {
     if (!initialized) {
-      console.log('not initialized yet');
+      const curTime = Date.now();
+      if (curTime - prevTime > 1000) {
+        process.stdout.write(".");
+        prevTime = curTime;
+      }
     }
     if (running && initialized) {
       if (forward) {

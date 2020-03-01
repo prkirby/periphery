@@ -9,7 +9,7 @@ const row = [
   null,
   null,
   null,
-  { io: IO1, index: 17 },
+  { io: IO1, index: 24 },
   null,
   null,
   { io: IO1, index: 35 },
