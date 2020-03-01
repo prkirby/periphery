@@ -65,7 +65,7 @@ class Serial {
         const hex = this.convertToHex(data.join(""));
         let cmd = `[${arrayName}es${hex}]`;
         await this.writeAndDrain(cmd);
-        await timer(4);
+        await timer(3);
       }
       resolve();
     });
