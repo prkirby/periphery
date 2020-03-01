@@ -1,7 +1,7 @@
 "use strict";
 require("dotenv").config();
 const { performance } = require("perf_hooks");
-const rs2 = require("/Users/paul/WebDev/librealsense/wrappers/nodejs/index.js");
+const rs2 = require(process.env.REALSENSE_NODE);
 const FrameProcessor = require("./FrameProcessor");
 const Mapper = require("./Mapper");
 const Serial = require("./Serial");
