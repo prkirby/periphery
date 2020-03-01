@@ -1,3 +1,4 @@
+const { IO1, IO2, IO3, IO4, IO5, IO6 } = require('../constants');
 const row = [
   { io: IO1, index: 29 },
   null,
@@ -48,7 +49,5 @@ const row = [
   null,
   null
 ];
-
-const { IO1, IO2, IO3, IO4, IO5, IO6 } = require('./index');
 
 module.exports = row;

@@ -6,11 +6,11 @@ const Serial = require("./Serial");
 const { timer } = require("./Utilities");
 const { pixelMap } = require("./pixelMap");
 
-const delay = 1000;
+const delay = 800;
 const gridWidth = 48;
 const gridHeight = 28;
 let forward = true;
-let running = true;
+let running = false;
 let index = 0;
 const frame = new Array(gridWidth * gridHeight).fill(0);
 
@@ -75,27 +75,33 @@ const indexBackward = () => {
 const setPixel = () => {
   frame.fill(0);
   frame[index] = 1;
-  pixel = pixelMap[index];
-  const row = Math.ceiling((index + 1) / 48);
+  const pixel = pixelMap[index];
+
+  const row = Math.ceil((index + 1) / 48);
+  const column = (index + 1) % 48 || 48;
+  console.log(`Row: ${row} | Column: ${column}`);
 
   if (pixel) {
-    console.log(``);
+    console.log(`IO${pixel.io} | address ${pixel.index}`);
   } else {
+    console.log("Null");
   }
+  console.log("--------");
+
   Serial.output(Mapper.getIOArrays(frame));
 };
 
 const allOn = () => {
   running = false;
   frame.fill(1);
-  console.log("all on");
+  console.log("all on\n--------");
   Serial.output(Mapper.getIOArrays(frame));
 };
 
 const allOff = () => {
   running = false;
   frame.fill(0);
-  console.log("all off");
+  console.log("all off\n--------");
   Serial.output(Mapper.getIOArrays(frame));
 };
 
@@ -111,8 +117,8 @@ const loop = async () => {
       } else {
         indexBackward();
       }
-      await timer(delay);
     }
+    await timer(delay);
   }
 };
 

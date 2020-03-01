@@ -1,9 +1,16 @@
-const { IO1, pixelMap } = require('./pixelMap');
+const { IO1, IO2, IO3, IO4, IO5, IO6 } = require('./constants');
+const { pixelMap } = require('./pixelMap');
 
 class Mapper {
   constructor() {
     this.IOArrays = {};
     this.IOArrays[IO1] = new Array(128).fill(0);
+    this.IOArrays[IO2] = new Array(128).fill(0);
+    this.IOArrays[IO3] = new Array(128).fill(0);
+    this.IOArrays[IO4] = new Array(128).fill(0);
+    this.IOArrays[IO5] = new Array(128).fill(0);
+    this.IOArrays[IO6] = new Array(128).fill(0);
+    console.log(pixelMap);
   }
 
   getIOArrays(frameData) {

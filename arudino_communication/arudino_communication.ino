@@ -2,7 +2,7 @@
 #include "IOExpander9Bit.h"
 #include <avr/wdt.h>
 
-#define MAX_BOARDS 3
+#define MAX_BOARDS 6
 #define MAX_RELAYS 128
 
 void setup() {
