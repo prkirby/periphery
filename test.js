@@ -1,26 +1,26 @@
 "use strict";
 require("dotenv").config();
-const iohook = require("iohook");
+const keypress = require("keypress");
 const Mapper = require("./Mapper");
 const Serial = require("./Serial");
 const { timer } = require("./Utilities");
 const { pixelMap } = require("./pixelMap");
 
-const delay = 100;
-const gridWidth = 48;
-const gridHeight = 28;
+const delay = process.env.TEST_DELAY;
+const gridWidth = process.env.GRID_WIDTH;
+const gridHeight = process.env.GRID_HEIGHT;
 let forward = true;
 let running = false;
+let initialized = false;
 let index = 0;
 const frame = new Array(gridWidth * gridHeight).fill(0);
 
-const keypress = require("keypress");
 
 // make `process.stdin` begin emitting "keypress" events
 keypress(process.stdin);
 
 // listen for the "keypress" event
-process.stdin.on("keypress", function(ch, key) {
+process.stdin.on("keypress", async function(ch, key) {
   if (!key) return;
 
   switch (key.name) {
@@ -36,11 +36,24 @@ process.stdin.on("keypress", function(ch, key) {
     case "left":
       indexBackward();
       break;
+    case "up":
+      indexBackward(true);
+      break;
+    case "down":
+      indexForward(true);
+      break;
     case "o":
       allOn();
       break;
     case "f":
       allOff();
+      break;
+    case "l":
+      await Serial.list();
+      break;
+    case "s":
+      await Serial.init();
+      initialized = true;
       break;
     case "c":
       if (key.ctrl) {
@@ -54,20 +67,36 @@ process.stdin.on("keypress", function(ch, key) {
 process.stdin.setRawMode(true);
 process.stdin.resume();
 
-const indexForward = () => {
-  if (index >= frame.length - 1) {
-    index = 0;
+const indexForward = (moveRow = false) => {
+  if (moveRow) {
+    let newIndex = index + gridWidth;
+    if (newIndex >= frame.length - 1) {
+      newIndex = newIndex = frame.length - 1;
+    }
+    index = newIndex;
   } else {
-    index++;
+    if (index >= frame.length - 1) {
+      index = 0;
+    } else {
+      index++;
+    }
   }
   setPixel();
 };
 
-const indexBackward = () => {
-  if (index <= 0) {
-    index = frame.length - 1;
+const indexBackward = (moveRow = false) => {
+  if (moveRow) {
+    let newIndex = index - gridWidth;
+    if (newIndex < 0) {
+      newIndex = frame.length - 1 + newIndex;
+    }
+    index = newIndex;
   } else {
-    index--;
+    if (index <= 0) {
+      index = frame.length - 1;
+    } else {
+      index--;
+    }
   }
   setPixel();
 };
@@ -107,11 +136,11 @@ const allOff = () => {
 
 // Main Loop
 const loop = async () => {
-  // Setup serial connection
-  await Serial.init();
-
   while (true) {
-    if (running) {
+    if (!initialized) {
+      console.log('not initialized yet');
+    }
+    if (running && initialized) {
       if (forward) {
         indexForward();
       } else {

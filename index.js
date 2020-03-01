@@ -8,11 +8,12 @@ const Serial = require("./Serial");
 const { printFrame, timer } = require("./Utilities");
 
 const pipeline = new rs2.Pipeline();
-const delay = 80;
-const gridWidth = 48;
-const gridHeight = 28;
-const minDistance = 1000;
-const maxDistance = 5000;
+const delay = process.env.DELAY;
+const gridWidth = process.env.GRID_WIDTH;
+const gridHeight = process.env.GRID_HEIGHT;
+const minDistance = process.env.MIN_DISTANCE;
+const maxDistance = process.env.MAX_DISTANCE;
+const shouldPrintFrame = process.env.PRINT_FRAME;
 const Processor = new FrameProcessor(
   gridWidth,
   gridHeight,
@@ -35,6 +36,9 @@ config.enableStream(
 // Start the camera
 pipeline.start();
 
+console.log(process.env.DELAY);
+console.log(process.env.PRINT_FRAME);
+
 // Main Loop
 const loop = async () => {
   // Setup serial connection
@@ -43,27 +47,21 @@ const loop = async () => {
   while (true) {
     const frameset = pipeline.pollForFrames();
     if (frameset) {
-      // console.log("made it here");
       let depthFrame = frameset.depthFrame;
       // const t0 = performance.now();
-      // depthFrame = Processor.fillHoles(depthFrame);
-      // depthFrame = Processor.spatialize(depthFrame);
-      // depthFrame = Processor.temporalize(depthFrame);
-      depthFrame = Processor.temporalize(depthFrame);
       depthFrame = Processor.decimate(depthFrame);
       depthFrame = Processor.downsample(depthFrame);
       depthFrame = Processor.mirror(depthFrame);
       depthFrame = Processor.convertToBinary(depthFrame);
-      // printFrame(depthFrame);
+      if (shouldPrintFrame === "true") {
+        printFrame(depthFrame);
+      }
 
       const ioArrays = Mapper.getIOArrays(depthFrame.data);
 
       await Serial.output(ioArrays);
-
       // const t1 = performance.now();
       // console.log(`Processing took: ${t1 - t0} millis`);
-
-      // break;
     }
     await timer(delay);
   }
