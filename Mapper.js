@@ -10,9 +10,6 @@ class Mapper {
     this.IOArrays[IO4] = new Array(128).fill(0);
     this.IOArrays[IO5] = new Array(128).fill(0);
     this.IOArrays[IO6] = new Array(128).fill(0);
-    for (let pixel of pixelMap) {
-      console.log(pixel);
-    }
   }
 
   getIOArrays(frameData) {
