@@ -58,15 +58,30 @@ class Serial {
 
   // Expects formatted list of IO Arrays, from Mapper
   output(ioArrays) {
+    const delay = 7;
     return new Promise(async resolve => {
       for (const arrayName in ioArrays) {
-        let data = ioArrays[arrayName];
+        const ioArray = ioArrays[arrayName];
+        let data = ioArray.data;
+
+        if (ioArray.wasEmpty && data.every(item => item == 1)) {
+          await timer(delay);
+          continue;
+        }
+
         data = data.reverse();
         const hex = this.convertToHex(data.join(""));
         let cmd = `[${arrayName}es${hex}]`;
         await this.writeAndDrain(cmd);
-        await timer(4);
+        await timer(delay);
+
+        if (data.every(item => item == 1)) {
+          ioArray.wasEmpty = true;
+        } else {
+          ioArray.wasEmpty = false;
+        }
       }
+
       resolve();
     });
   }
