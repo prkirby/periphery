@@ -15,6 +15,7 @@ let initialized = false;
 let index = 0;
 const frame = new Array(gridWidth * gridHeight).fill(0);
 const initializePrompt = "l to list ports, s initialize and start";
+Mapper.randomPixels = false;
 
 
 // make `process.stdin` begin emitting "keypress" events

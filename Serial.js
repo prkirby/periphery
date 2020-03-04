@@ -58,7 +58,7 @@ class Serial {
 
   // Expects formatted list of IO Arrays, from Mapper
   output(ioArrays) {
-    const delay = 7;
+    const delay = 4;
     return new Promise(async resolve => {
       for (const arrayName in ioArrays) {
         const ioArray = ioArrays[arrayName];

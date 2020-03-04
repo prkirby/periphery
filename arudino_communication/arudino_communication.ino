@@ -8,8 +8,8 @@
 void setup() {
   Serial9Bit.begin(115200);
   Serial9Bit1.begin(115200, SERIAL_9N1); // The IOExpander library is tweaked to use Serial1
-  Serial9Bit1.write(0);// Set IO Expanders to 9-bit
-//  wdt_enable(WDTO_8S);
+  Serial9Bit1.write(0); // Set IO Expanders to 9-bit
+  wdt_enable(WDTO_8S); // Set up watchdog timer
   char setCmd[10];
   for (int board = 1; board <= MAX_BOARDS; board++) {
     sprintf(setCmd, "eb%d", MAX_RELAYS / 16);
@@ -27,14 +27,18 @@ boolean finishedResponse = false;
 void loop() {
   receiveCommand();
   sendCommand();
-//  for (int i = 1; i <= MAX_BOARDS; i++) {
-//    Serial9Bit1.address(i);
-//    Serial9Bit1.println("es00000000000000000000000000000000");
-//    delay(1000);
-//    Serial9Bit1.address(i);
-//    Serial9Bit1.println("esffffffffffffffffffffffffffffffff");
-//    delay(1000);
-//  }
+//  Serial9Bit1.write(0); // Reset IO Expanders to 9 bit to ensure they don't reset to 8bit mode
+/* Quick Test for flashing each IO Expander individually */
+/*
+  for (int i = 1; i <= MAX_BOARDS; i++) {
+    Serial9Bit1.address(i);
+    Serial9Bit1.println("es00000000000000000000000000000000");
+    delay(1000);
+    Serial9Bit1.address(i);
+    Serial9Bit1.println("esffffffffffffffffffffffffffffffff");
+    delay(1000);
+  }
+*/
 }
 
 void receiveCommand() {
@@ -47,7 +51,6 @@ void receiveCommand() {
   while (newData == false) {
     if (Serial9Bit.available() > 0) {
       rc = Serial9Bit.read();
-//      Serial9Bit.print(rc);
           
       if (recvInProgress == true) {
         if (rc != endMarker) {
@@ -68,8 +71,8 @@ void receiveCommand() {
         recvInProgress = true;
       }
     }
+    wdt_reset(); // Reset watchdog timer
   }
-//  Serial9Bit.println();
 }
 
 void sendCommand() {
@@ -78,28 +81,24 @@ void sendCommand() {
   if (newData == true) {
     board = receivedChars[0] - 48; // Convert from ascii to true index
     sprintf(cmd, "%.34s", &receivedChars[1]);
-//    Serial9Bit.println(board);
-//    Serial9Bit.println(cmd);
     Serial9Bit1.address(board);
     Serial9Bit1.println(cmd);
-//    readResponse();
     newData = false;
+    wdt_reset(); // Reset watchdog timer
   }
 }
 
-void readResponse() {
-  static char rc;
-  finishedResponse = false;
-  
-  while (finishedResponse == false) {
-    if (Serial9Bit1.available() > 0) {
-      rc = Serial9Bit1.read();
-//      Serial9Bit.print(rc);
-      if (rc == '>') {
-//        Serial9Bit.println();
-        finishedResponse = true;
-        Serial9Bit.println("%");     
-      }
-    }
-  }
-}
+//void readResponse() {
+//  static char rc;
+//  finishedResponse = false;
+//  
+//  while (finishedResponse == false) {
+//    if (Serial9Bit1.available() > 0) {
+//      rc = Serial9Bit1.read();
+//      if (rc == '>') {
+//        finishedResponse = true;
+//        Serial9Bit.println("%");     
+//      }
+//    }
+//  }
+//}

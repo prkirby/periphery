@@ -29,7 +29,7 @@ class Mapper {
       wasEmpty: false
     };
 
-
+    this.randomPixels = true;
   }
 
   getIOArrays(frameData) {
@@ -57,7 +57,7 @@ class Mapper {
     });
 
     // Only set random pixels if we don't have any frame data
-    if (!hasData) {
+    if (this.randomPixels && !hasData) {
       this.setRandomPixels();
     }
   }
@@ -66,8 +66,8 @@ class Mapper {
     for (const arrayName in this.IOArrays) {
       const ioArray = this.IOArrays[arrayName];
       // 0 to 4 pixels
-      const numPixels = this.getRandomInt(10);
-      const probability = 30; // Higher is lower probability
+      const numPixels = this.getRandomInt(20);
+      const probability = 1; // Higher is lower probability
 
       // set the number of pixels, with probability scalar
       for (let i = 0; i <= numPixels; i++) {
