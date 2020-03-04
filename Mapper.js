@@ -65,9 +65,9 @@ class Mapper {
   setRandomPixels() {
     for (const arrayName in this.IOArrays) {
       const ioArray = this.IOArrays[arrayName];
-      // 0 to 4 pixels
-      const numPixels = this.getRandomInt(20);
-      const probability = 1; // Higher is lower probability
+      // 0 to 10 pixels
+      const numPixels = this.getRandomInt(11);
+      const probability = 60; // Higher is lower probability
 
       // set the number of pixels, with probability scalar
       for (let i = 0; i <= numPixels; i++) {
