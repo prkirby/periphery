@@ -27,7 +27,7 @@ boolean finishedResponse = false;
 void loop() {
   receiveCommand();
   sendCommand();
-//  Serial9Bit1.write(0); // Reset IO Expanders to 9 bit to ensure they don't reset to 8bit mode
+  Serial9Bit1.write(0); // Reset IO Expanders to 9 bit to ensure they don't reset to 8bit mode
 /* Quick Test for flashing each IO Expander individually */
 /*
   for (int i = 1; i <= MAX_BOARDS; i++) {
