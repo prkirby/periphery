@@ -70,7 +70,7 @@ class Mapper {
       const probability = 60; // Higher is lower probability
 
       // set the number of pixels, with probability scalar
-      for (let i = 0; i <= numPixels; i++) {
+      for (let i = 0; i < numPixels; i++) {
         const index = this.getRandomInt(ioArray.data.length * probability);
         if (index < ioArray.data.length) {
           ioArray.data[index] = 0;
